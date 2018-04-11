@@ -1,5 +1,8 @@
 package java1.lesson1.sea_battle.server.components;
 
+import java1.lesson1.sea_battle.server.controllers.GameController;
+import java1.lesson1.sea_battle.server.models.Game;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -8,7 +11,7 @@ import java.util.List;
 
 public class SeaBattleHandler implements Runnable {
     private static List<SeaBattleHandler> handlers = Collections.synchronizedList(new ArrayList<>());
-    private static final Object key = new Object();
+    private final Object key = new Object();
 
     private static Integer count = 0;
     private static int incrementCount() {
@@ -23,18 +26,21 @@ public class SeaBattleHandler implements Runnable {
     private final String LEFT_THE_GAME = "3";
     private final String BUSY = "4";
 
+    private boolean exit;
     private int id;
     private boolean isBusy;
     private boolean isSet;
     private String response;
     private String playerName;
     private SeaBattleHandler adversary;
+    private GameController controller;
     private final Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
 
     public SeaBattleHandler(Socket socket) {
         id = incrementCount();
+        exit = false;
         isBusy = false;
         this.socket = socket;
         try {
@@ -52,8 +58,11 @@ public class SeaBattleHandler implements Runnable {
     public void run() {
         handlers.add(this);
         try {
-            while (true) {
+            while (!exit) {
                 String message = in.readUTF();
+
+                //todo delete
+                System.err.println(id + " netHandler: " + message);
 
                 if (message.startsWith("setPlayerName")) {
                     setPlayerName(message.substring(14));
@@ -67,9 +76,16 @@ public class SeaBattleHandler implements Runnable {
                 else if (message.startsWith("returnResponse")) {
                     response = message.substring(15);
                     isSet = true;
-                    synchronized (this) {
-                        this.notifyAll();
+                    synchronized (key) {
+                        key.notifyAll();
                     }
+                }
+                else if (message.startsWith("setShotCoordinate")) {
+                    controller.setShotCoordinate(message.substring(18));
+                }
+                else if (message.startsWith("exit")) {
+                    controller.exit(id);
+                    exit = true;
                 }
 
             }
@@ -129,39 +145,49 @@ public class SeaBattleHandler implements Runnable {
 
         // Start game
         if (response.equals(AGREE)) {
-
-            //todo start game
             sendMessage("adversaryResponse " + AGREE);
-
+            adversary.setAdversary(this);
+            Game game = new Game(this, adversary);
+            try {
+                game.init();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            new Thread(game).start();
         }
+    }
+
+    /**
+     * Устанавливает adversary для игрока принявшего предложение
+     * @param playerNetHandler игрок сделавший предложение
+     */
+    private void setAdversary(SeaBattleHandler playerNetHandler) {
+        this.adversary = playerNetHandler;
     }
 
     /**
      * Lets Play
      * @param player игрок сделавший предложение
      */
-    private synchronized String letsPlay(SeaBattleHandler player) {
+    public String letsPlay(SeaBattleHandler player) {
         if (isBusy) {
             return BUSY;
-        } else {
-            isBusy = true;
         }
-
-        sendMessage("letsPlay " + player.getPlayerName());
-
+        isBusy = true;
         isSet = false;
-        while (!isSet) {
-            try {
-                this.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        sendMessage("letsPlay " + player.getPlayerName());
+        synchronized (key) {
+            while (!isSet) {
+                try {
+                    key.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
-
         if (response.equals(REFUSE) || response.equals(CANCEL)) {
             isBusy = false;
         }
-
         return response;
     }
 
@@ -187,7 +213,7 @@ public class SeaBattleHandler implements Runnable {
      * Send Message to the client
      * @param message
      */
-    private void sendMessage(String message) {
+    public void sendMessage(String message) {
         try {
             out.writeUTF(message);
             out.flush();
@@ -214,7 +240,7 @@ public class SeaBattleHandler implements Runnable {
 
     /**
      * Setter playerName
-     * @param playerName
+     * @param playerName имя игрока
      */
     private void setPlayerName(String playerName) {
         this.playerName = playerName;
@@ -222,9 +248,25 @@ public class SeaBattleHandler implements Runnable {
 
     /**
      * Getter playerName
-     * @return playerName
+     * @return playerName имя игрока
      */
-    private String getPlayerName() {
+    public String getPlayerName() {
         return playerName;
+    }
+
+    /**
+     * Getter Adversary
+     * @return adversary игрок принявший предложение об игре
+     */
+    public SeaBattleHandler getAdversary() {
+        return adversary;
+    }
+
+    /**
+     * Setter controller
+     * @param controller контроллер игры
+     */
+    public void setController(GameController controller) {
+        this.controller = controller;
     }
 }

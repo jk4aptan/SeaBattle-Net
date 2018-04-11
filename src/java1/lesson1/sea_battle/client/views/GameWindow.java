@@ -13,10 +13,16 @@ public class GameWindow extends JFrame {
 
     private static final int FIELD_SIZE = 10;
     private static final int ROW_STEP = 10;
+    private static final int DELIMITER = 10;
     private static final String WINDOW_TITLE = "Sea Battle";
     private static final String PLAYER_FIELD = "ВАШЕ ПОЛЕ";
     private static final String ADVERSARY_FIELD = "ПОЛЕ ПРОТИВНИКА";
     private static final Color DEFAULT_COLOR = Color.lightGray;
+    private static final Color SEA_COLOR = Color.BLUE;
+    private static final Color SHIP_COLOR = Color.BLACK;
+    private static final Color UNHARMED_COLOR = Color.WHITE;
+    private static final Color WOUNDED_COLOR = Color.ORANGE;
+    private static final Color SUNK_COLOR = Color.RED;
 
 
     /**
@@ -44,6 +50,10 @@ public class GameWindow extends JFrame {
      * Adversary's name
      */
     private JLabel adversaryName;
+    /**
+     * Имя игрока которому делается запрос на игру
+     */
+    private String requestAdversaryName;
     /**
      * Current turn
      */
@@ -113,14 +123,25 @@ public class GameWindow extends JFrame {
     }
 
 
-    // ??????
-    public void start() {
-//        init();
+    /**
+     * Инициализация графического интерфейса пользователя
+     */
+    public void init() {
         setPlayerName();
-        gameField.add(getChooseAdversaryPanel(), BorderLayout.CENTER);
+        chooseAdversaryPanel = getChooseAdversaryPanel();
+        gameField.add(chooseAdversaryPanel, BorderLayout.CENTER);
         setVisible(true);
     }
 
+    /**
+     * Setter InfoPanel
+     */
+    public void setInfoPanel() {
+        gameField.remove(chooseAdversaryPanel);
+        infoPanel = getInfoPanel();
+        gameField.add(infoPanel, BorderLayout.CENTER);
+        gameField.revalidate();
+    }
 
     /**
      * Create WinPanel
@@ -169,6 +190,9 @@ public class GameWindow extends JFrame {
      * Update Adversaries Panel
      */
     private synchronized void updateAdversariesPanel() {
+        if (isGame) {
+            return;
+        }
         // запросить всех доступных для игры игроков
         controller.getAdversaries();
 
@@ -269,19 +293,18 @@ public class GameWindow extends JFrame {
      * Create a panel with player's playing field
      *
      * @param gameSels Player's playing sels
-     * @param fieldName Player's name
-     * @param playerName
+     * @param fieldName метка с указанием имени игрока
+     * @param playerName Player's name
      * @return Panel with player's playing field
      */
     private JPanel getGameField(JButton[][] gameSels, String fieldName, JLabel playerName) {
         JLabel gameFieldName = new JLabel(fieldName + ": ");
-//        gameFieldName.setHorizontalAlignment(SwingConstants.CENTER);
         JPanel fieldPlayerName = new JPanel(new FlowLayout(FlowLayout.CENTER));
         fieldPlayerName.add(gameFieldName);
         fieldPlayerName.add(playerName);
 
         JPanel gameSeaArea = new JPanel();
-        gameSeaArea.setLayout(new GridLayout(FIELD_SIZE, FIELD_SIZE, 2, 2));
+        gameSeaArea.setLayout(new GridLayout(FIELD_SIZE, FIELD_SIZE, 1, 1));
         for (int row = 0; row < FIELD_SIZE; row++) {
             for (int column = 0; column < FIELD_SIZE; column++) {
                 JButton jButton = new JButton();
@@ -294,7 +317,7 @@ public class GameWindow extends JFrame {
                         public void actionPerformed(ActionEvent e) {
                             if (makeShot) {
                                 makeShot = false;
-//                                gameController.setShotCoordinate(finalRow * ROW_STEP + finalColumn);
+                                controller.setShotCoordinate(finalRow * ROW_STEP + finalColumn);
                             }
                         }
                     });
@@ -312,6 +335,7 @@ public class GameWindow extends JFrame {
         return gameField;
     }
 
+
     /**
      * Set Player's name
      */
@@ -321,6 +345,7 @@ public class GameWindow extends JFrame {
         controller.sendPlayerName(name);
     }
 
+
     /**
      * Set Game's controller
      * @param controller game's controller
@@ -329,6 +354,7 @@ public class GameWindow extends JFrame {
         this.controller = controller;
     }
 
+
     /**
      * Set flag allowing the player to make a shot
      * @param value if true then to make a shot
@@ -336,6 +362,7 @@ public class GameWindow extends JFrame {
     public void setMakeShot(boolean value) {
         this.makeShot = value;
     }
+
 
     /**
      * Setter Adversaries
@@ -348,6 +375,7 @@ public class GameWindow extends JFrame {
         for (String player : players) {
             String[] values = player.split(":");
             if (!values[0].isEmpty()) {
+                requestAdversaryName = values[0];
                 JButton jButton = new JButton(values[0]);
                 jButton.addActionListener(new ActionListener() {
                     @Override
@@ -360,6 +388,7 @@ public class GameWindow extends JFrame {
         }
     }
 
+
     /**
      * Request Adversary
      * @param id adversary
@@ -368,10 +397,8 @@ public class GameWindow extends JFrame {
         if (isGame) {
             return;
         }
-
         // Предложить сыграть
         controller.requestAdversary(id);
-
         isSet = false;
         while (!isSet) {
             try {
@@ -380,24 +407,19 @@ public class GameWindow extends JFrame {
                 e.printStackTrace();
             }
         }
-
         if (response.equals(REFUSE)) {
             JOptionPane.showMessageDialog(null, "Вам отказали. Выберите другого игрока");
         }
-
-
-        //todo - process response
-        //todo заглушка
         if (response.equals(AGREE)) {
-            adversariesPanel.add(new JLabel("Start game"));
-            adversariesPanel.revalidate();
+            isGame = true;
+            adversaryName.setText(requestAdversaryName);
         }
     }
 
 
     /**
      * Setter response
-     * @param response
+     * @param response ответ игрока, которому предложили сыграть
      */
     public void setResponse(String response) {
         this.response = response;
@@ -415,23 +437,124 @@ public class GameWindow extends JFrame {
      * Lets Play
      * @param playerName игрок сделавший предложение
      */
-    public synchronized void letsPlay(String playerName) {
-        String message = this.playerName + ", " + playerName + " предложил сыграть ?";
+    public void letsPlay(String playerName) {
+        String message = this.playerName.getText() + ", " + playerName + " предложил сыграть ?";
         Integer response = JOptionPane.showConfirmDialog(null, message);
         controller.returnResponse(response);
 
         if (response.toString().equals(AGREE)) {
-            synchronized (this) {
-                isGame = true;
-                isSet = false;
-                while (!isSet) {
-                    try {
-                        this.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+            isGame = true;
+            adversaryName.setText(playerName);
+        }
+    }
+
+    /**
+     * Размещает корабли на игровом поле
+     * @param coordinates координаты кораблей
+     */
+    public void initShipCoordinates(String coordinates) {
+        for (int row = 0; row < FIELD_SIZE; row++) {
+            for (int column = 0; column < FIELD_SIZE; column++) {
+                playerSels[row][column].setBackground(SEA_COLOR);
+                adversarySels[row][column].setBackground(SEA_COLOR);
             }
         }
+        for (String coordinate : coordinates.split(";")) {
+            Integer row = Integer.parseInt(coordinate) / DELIMITER;
+            Integer column = Integer.parseInt(coordinate) % DELIMITER;
+            playerSels[row][column].setBackground(SHIP_COLOR);
+        }
+    }
+
+    /**
+     * Выводит на InfoPanel сообщение
+     * @param message выводимое сообщение
+     */
+    private void showMessage(String message) {
+        infoOut.append(message + "\n");
+    }
+
+    /**
+     * Сообщает о том, что текущему игроку необходимо сделать ход
+     * @param playerName текущий игрок
+     */
+    public void setTurnOn(String playerName) {
+        showMessage("ХОД: " + playerName);
+        makeShot = true;
+    }
+
+    /**
+     * Сообщает противнику о том, что сейчас не его ход
+     * @param playerName текущий игрок
+     */
+    public void setTurnOff(String playerName) {
+        showMessage("ХОД: " + playerName);
+    }
+
+    /**
+     * Выводит результат хода текущего игрока
+     * @param data имя текущего игрока и xoд игрока
+     */
+    public void setCurrentResult(String data) {
+        String[] resultData = data.split(";");
+        String currentPlayerName = resultData[0];
+
+        int coordinate = Integer.parseInt(resultData[1]);
+        int row = coordinate / DELIMITER;
+        int column = coordinate % DELIMITER;
+
+        Color color = null;
+        String message = null;
+        String result = resultData[2];
+        switch (result) {
+            case "UNHARMED":
+                color = UNHARMED_COLOR;
+                message = "МИМО";
+                break;
+            case "WOUNDED":
+                color = WOUNDED_COLOR;
+                message = "РАНИЛ";
+        }
+
+        if (currentPlayerName.equals(playerName.getText())) {
+            adversarySels[row][column].setBackground(color);
+        } else {
+            playerSels[row][column].setBackground(color);
+        }
+        showMessage(message);
+    }
+
+    /**
+     * Выводит данные по потопленному кораблю
+     * @param data данные по потопленному кораблю
+     */
+    public void setLastSunkShip(String data) {
+        String[] resultData = data.split(";");
+        String currentPlayerName = resultData[0];
+
+        for (String busySellsCoordinates : resultData[2].split(",")) {
+            int coordinate = Integer.parseInt(busySellsCoordinates);
+            int row = coordinate / DELIMITER;
+            int column = coordinate % DELIMITER;
+
+            if (currentPlayerName.equals(playerName.getText())) {
+                adversarySels[row][column].setBackground(UNHARMED_COLOR);
+            } else {
+                playerSels[row][column].setBackground(UNHARMED_COLOR);
+            }
+        }
+
+        for (String sunkShipCoordinate : resultData[1].split(",")) {
+            int coordinate = Integer.parseInt(sunkShipCoordinate);
+            int row = coordinate / DELIMITER;
+            int column = coordinate % DELIMITER;
+
+            if (currentPlayerName.equals(playerName.getText())) {
+                adversarySels[row][column].setBackground(SUNK_COLOR);
+            } else {
+                playerSels[row][column].setBackground(SUNK_COLOR);
+            }
+        }
+        showMessage("ПОТОПИЛ");
     }
 }

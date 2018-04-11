@@ -1,7 +1,7 @@
-package java1.lesson1.sea_battle.configs;
+package java1.lesson1.sea_battle.server.configs;
 
-import java1.lesson1.sea_battle.components.Enums.CreatingShipMode;
-import java1.lesson1.sea_battle.components.Enums.MakeShotStrategy;
+import java1.lesson1.sea_battle.server.components.Enums.CreatingShipMode;
+import java1.lesson1.sea_battle.server.components.Enums.MakeShotStrategy;
 
 import java.util.ArrayList;
 

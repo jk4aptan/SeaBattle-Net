@@ -1,11 +1,10 @@
-package java1.lesson1.sea_battle.components.Factories;
+package java1.lesson1.sea_battle.server.components.Factories;
 
-import java1.lesson1.sea_battle.components.Strategies.ImproveAutoMakeShotStrategy;
-import java1.lesson1.sea_battle.components.Strategies.SimpleAutoMakeShotStrategy;
-import java1.lesson1.sea_battle.configs.Config;
-import java1.lesson1.sea_battle.controllers.GameController;
-import java1.lesson1.sea_battle.models.Computer;
-import java1.lesson1.sea_battle.models.Player;
+import java1.lesson1.sea_battle.server.components.Strategies.ImproveAutoMakeShotStrategy;
+import java1.lesson1.sea_battle.server.components.Strategies.SimpleAutoMakeShotStrategy;
+import java1.lesson1.sea_battle.server.configs.Config;
+import java1.lesson1.sea_battle.server.models.Computer;
+import java1.lesson1.sea_battle.server.models.Player;
 
 /**
  * Фабрика создания игроков
@@ -29,9 +28,11 @@ public class PlayerFactory {
      * Создает игрока с заданым именем
      *
      * @return игрок с заданым именем
+     * @param name имя игрока
+     * @param id
      */
-    public Player createPlayer() {
-        return new Player(GameController.getInstance().getPlayerName());
+    public synchronized Player createPlayer(String name, int id) {
+        return new Player(name, id);
     }
 
     /**

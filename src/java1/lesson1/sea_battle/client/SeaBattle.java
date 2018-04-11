@@ -10,11 +10,11 @@ import java.net.Socket;
 public class SeaBattle {
     public static void main(String[] args) {
         String server = "localhost";
-        String port = "8086";
+        int port = 8086;
         Socket socket = null;
 
         try {
-            socket = new Socket(server, Integer.parseInt(port));
+            socket = new Socket(server, port);
             ClientNetHandler netHandler = new ClientNetHandler(socket);
             GameWindow gameWindow = new GameWindow();
             ClientController controller = new ClientController(gameWindow, netHandler);
@@ -22,7 +22,7 @@ public class SeaBattle {
             netHandler.setController(controller);
 
             new Thread(netHandler).start();
-            gameWindow.start();
+            gameWindow.init();
         } catch (IOException e) {
             e.printStackTrace();
             try {

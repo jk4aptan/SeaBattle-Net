@@ -7,13 +7,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class SeaBattleServer {
-    private static final int PORT = 8086;
-
     public static void main(String[] args) {
+        int port = 8086;
         ServerSocket serverSocket = null;
 
         try {
-            serverSocket = new ServerSocket(PORT);
+            serverSocket = new ServerSocket(port);
             while (true) {
                 Socket socket = serverSocket.accept();
                 new SeaBattleHandler(socket);

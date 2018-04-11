@@ -39,6 +39,21 @@ public class ClientNetHandler implements Runnable {
                 else if (message.startsWith("adversaryResponse")) {
                     controller.adversaryResponse(message.substring(18));
                 }
+                else if (message.startsWith("initShipsCoordinates")) {
+                    controller.initShipCoordinates(message.substring(21));
+                }
+                else if (message.startsWith("turnOn")) {
+                    controller.setTurnOn(message.substring(7));
+                }
+                else if (message.startsWith("turnOff")) {
+                    controller.setTurnOff(message.substring(8));
+                }
+                else if (message.startsWith("setCurrentResult")) {
+                    controller.setCurrentResult(message.substring(17));
+                }
+                else if (message.startsWith("setLastSunkShip")) {
+                    controller.setLastSunkShip(message.substring(16));
+                }
 
             }
         } catch (IOException e) {
@@ -70,6 +85,10 @@ public class ClientNetHandler implements Runnable {
      */
     private void sendMessage(String message) {
         try {
+
+            //todo delete
+            System.err.println(message);
+
             out.writeUTF(message);
             out.flush();
         } catch (IOException e) {
@@ -90,6 +109,7 @@ public class ClientNetHandler implements Runnable {
      * @param exit if true then close
      */
     public void setExit(boolean exit) {
+        sendMessage("exit");
         this.exit = exit;
     }
 
@@ -110,10 +130,18 @@ public class ClientNetHandler implements Runnable {
     }
 
     /**
-     * Return Response
-     * @param response
+     * Ответ игрока на предложение сыграть
+     * @param response Ответ игрока
      */
     public void returnResponse(int response) {
         sendMessage("returnResponse " + response);
+    }
+
+    /**
+     * Setter shot's coordinate
+     * @param shotCoordinate shot's coordinate
+     */
+    public void setShotCoordinate(int shotCoordinate) {
+        sendMessage("setShotCoordinate " + shotCoordinate);
     }
 }

@@ -1,6 +1,6 @@
-package java1.lesson1.sea_battle.models;
+package java1.lesson1.sea_battle.server.models;
 
-import java1.lesson1.sea_battle.components.Enums.ShipState;
+import java1.lesson1.sea_battle.server.components.Enums.ShipState;
 import java.util.ArrayList;
 
 /**
@@ -35,7 +35,7 @@ public class Squadron {
     }
 
 
-    ArrayList<Ship> getShips() {
+    public ArrayList<Ship> getShips() {
         return ships;
     }
 

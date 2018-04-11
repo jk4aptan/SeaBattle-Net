@@ -1,7 +1,7 @@
-package java1.lesson1.sea_battle.models;
+package java1.lesson1.sea_battle.server.models;
 
-import java1.lesson1.sea_battle.components.Enums.FieldSymbol;
-import java1.lesson1.sea_battle.configs.Config;
+import java1.lesson1.sea_battle.server.components.Enums.FieldSymbol;
+import java1.lesson1.sea_battle.server.configs.Config;
 
 /**
  * Игровое поле приложения
@@ -33,19 +33,5 @@ public class BattleField {
 
     public Field getPlayerSeaArea() {
         return playerSeaArea;
-    }
-
-
-    /**
-     * Размещает эскадру на поле игрока
-     *
-     * @param squadron эскадра игрока
-     */
-    public void initWithSquadron(Squadron squadron) {
-        for (Ship ship : squadron.getShips()) {
-            for (Coordinate deck : ship.getCoordinates()) {
-                playerSeaArea.setCell(deck.getRow(), deck.getColumn(), FieldSymbol.SHIP.getValue());
-            }
-        }
     }
 }

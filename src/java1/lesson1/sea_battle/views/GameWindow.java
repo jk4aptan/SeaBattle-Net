@@ -1,8 +1,8 @@
 package java1.lesson1.sea_battle.views;
 
-import java1.lesson1.sea_battle.configs.Config;
-import java1.lesson1.sea_battle.controllers.GameController;
-import java1.lesson1.sea_battle.models.*;
+import java1.lesson1.sea_battle.server.configs.Config;
+import java1.lesson1.sea_battle.server.controllers.GameController;
+import java1.lesson1.sea_battle.server.models.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -77,13 +77,13 @@ public class GameWindow extends JFrame {
     /**
      * Контроллер приложения
      */
-    private final GameController gameController;
+//    private final GameController gameController;
 
 
 
     public GameWindow() {
-        gameController = GameController.getInstance();
-        gameController.setGameWindow(this);
+//        gameController = GameController.getInstance();
+//        gameController.setGameWindow(this);
 
         setSize(1000, 350);
         setTitle(WINDOW_TITLE);
@@ -142,7 +142,7 @@ public class GameWindow extends JFrame {
                 infoPanel.remove(winPanel);
                 infoPanel.repaint();
 
-                gameController.initGame();
+//                gameController.initGame();
 
                 synchronized (gwKey) {
                     while (!isInitBattleField) {
@@ -155,7 +155,7 @@ public class GameWindow extends JFrame {
                 }
 
                 init();
-                gameController.startNewGame();
+//                gameController.startNewGame();
             }
         });
 
@@ -257,7 +257,7 @@ public class GameWindow extends JFrame {
                         public void actionPerformed(ActionEvent e) {
                             if (isPlayerShot) {
                                 isPlayerShot = false;
-                                gameController.setShotCoordinate(new Coordinate(finalRow * ROW_STEP + finalColumn));
+//                                gameController.setShotCoordinate(new Coordinate(finalRow * ROW_STEP + finalColumn));
                             }
                         }
                     });
@@ -286,7 +286,8 @@ public class GameWindow extends JFrame {
      * Размещает корабли эскадры на игровом поле перед началом игры.
      */
     private void initBattleField() {
-        BattleField battleField = gameController.getPlayerBattleField();
+        BattleField battleField = new BattleField();
+//        BattleField battleField = gameController.getPlayerBattleField();
 
         Field playerSeaArea = battleField.getPlayerSeaArea();
         final char SEA = ' ';

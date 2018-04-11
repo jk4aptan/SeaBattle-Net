@@ -1,9 +1,9 @@
-package java1.lesson1.sea_battle.components.Strategies;
+package java1.lesson1.sea_battle.server.components.Strategies;
 
-import java1.lesson1.sea_battle.configs.Config;
-import java1.lesson1.sea_battle.models.Coordinate;
-import java1.lesson1.sea_battle.models.IMakeShotStrategy;
-import java1.lesson1.sea_battle.models.Squadron;
+import java1.lesson1.sea_battle.server.configs.Config;
+import java1.lesson1.sea_battle.server.models.Coordinate;
+import java1.lesson1.sea_battle.server.models.IMakeShotStrategy;
+import java1.lesson1.sea_battle.server.models.Squadron;
 
 import java.util.LinkedList;
 import java.util.Set;

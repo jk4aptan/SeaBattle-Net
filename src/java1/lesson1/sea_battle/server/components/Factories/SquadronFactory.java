@@ -1,9 +1,9 @@
-package java1.lesson1.sea_battle.components.Factories;
+package java1.lesson1.sea_battle.server.components.Factories;
 
-import java1.lesson1.sea_battle.configs.Config;
-import java1.lesson1.sea_battle.models.Coordinate;
-import java1.lesson1.sea_battle.models.Ship;
-import java1.lesson1.sea_battle.models.Squadron;
+import java1.lesson1.sea_battle.server.configs.Config;
+import java1.lesson1.sea_battle.server.models.Coordinate;
+import java1.lesson1.sea_battle.server.models.Ship;
+import java1.lesson1.sea_battle.server.models.Squadron;
 
 import java.util.ArrayList;
 
@@ -33,10 +33,9 @@ public class SquadronFactory {
 
     /**
      * Создание эскадры кораблей
-     *
      * @return эскадра кораблей
      */
-    public Squadron createSquadron() {
+    public synchronized Squadron createSquadron() {
         Squadron squadron = new Squadron();
 
         // для всех типов кораблей входящих в состав эскадры
@@ -97,7 +96,7 @@ public class SquadronFactory {
      * @param shipCoordinates координаты корабля
      * @return ячейки занятые кораблем и ячейки вокруг корабля
      */
-    public ArrayList<Integer> getBusySells(Coordinate[] shipCoordinates) {
+    public synchronized ArrayList<Integer> getBusySells(Coordinate[] shipCoordinates) {
         final int COLUMN = 1;
         final int ROW = 10;
 

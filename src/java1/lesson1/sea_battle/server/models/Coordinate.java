@@ -1,4 +1,4 @@
-package java1.lesson1.sea_battle.models;
+package java1.lesson1.sea_battle.server.models;
 
 /**
  * Класс Coordinate реализует координату ячейки игрового поля.

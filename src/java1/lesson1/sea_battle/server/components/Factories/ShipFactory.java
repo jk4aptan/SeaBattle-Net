@@ -1,9 +1,9 @@
-package java1.lesson1.sea_battle.components.Factories;
+package java1.lesson1.sea_battle.server.components.Factories;
 
-import java1.lesson1.sea_battle.components.Enums.ShipOrientation;
-import java1.lesson1.sea_battle.components.Enums.ShipState;
-import java1.lesson1.sea_battle.models.Coordinate;
-import java1.lesson1.sea_battle.models.Ship;
+import java1.lesson1.sea_battle.server.components.Enums.ShipOrientation;
+import java1.lesson1.sea_battle.server.components.Enums.ShipState;
+import java1.lesson1.sea_battle.server.models.Coordinate;
+import java1.lesson1.sea_battle.server.models.Ship;
 
 /**
  * Фабрика создания кораблей
@@ -29,7 +29,7 @@ class ShipFactory {
      * @param shipDecks колличество палуб корабля
      * @return Ship n-палубный корабль
      */
-    Ship createShipAuto(int shipDecks) {
+    synchronized Ship createShipAuto(int shipDecks) {
         final int VERTICAL_COORDINATE_STEP = 10;
         final int HORIZONTAL_COORDINATE_STEP = 1;
         final int MAX_COORDINATE = 100;
@@ -96,7 +96,7 @@ class ShipFactory {
      * @param shipDecks колличество палуб корабля
      * @return Ship n-палубный корабль
      */
-    Ship createShipHand(int shipDecks) {
+    synchronized Ship createShipHand(int shipDecks) {
         return new Ship();
     }
 }

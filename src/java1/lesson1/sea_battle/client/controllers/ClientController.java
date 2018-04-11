@@ -85,4 +85,53 @@ public class ClientController {
             gameWindow.notifyAll();
         }
     }
+
+    /**
+     * Размещает корабли на игровом поле
+     * @param coordinates координаты кораблей
+     */
+    public void initShipCoordinates(String coordinates) {
+        gameWindow.initShipCoordinates(coordinates);
+        gameWindow.setInfoPanel();
+    }
+
+    /**
+     * Сообщает игроку о том, что ему необходимо сделать ход
+     * @param playerName текущий игрок
+     */
+    public void setTurnOn(String playerName) {
+        gameWindow.setTurnOn(playerName);
+    }
+
+    /**
+     * Сообщает противнику о том, что сейчас не его ход
+     * @param playerName текущий игрок
+     */
+    public void setTurnOff(String playerName) {
+        gameWindow.setTurnOff(playerName);
+    }
+
+    /**
+     * Setter shot's coordinate
+     * @param shotCoordinate shot's coordinate
+     */
+    public void setShotCoordinate(int shotCoordinate) {
+        netHandler.setShotCoordinate(shotCoordinate);
+    }
+
+    /**
+     * Выводит результат хода текущего игрока
+     * @param data имя текущего игрока и xoд игрока
+     */
+    public void setCurrentResult(String data) {
+        gameWindow.setCurrentResult(data);
+    }
+
+    /**
+     * Выводит данные по потопленному кораблю
+     * @param data данные по потопленному кораблю
+     */
+    public void setLastSunkShip(String data) {
+        gameWindow.setLastSunkShip(data);
+    }
 }

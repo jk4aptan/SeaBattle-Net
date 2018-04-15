@@ -4,13 +4,12 @@ import java1.lesson1.sea_battle.client.controllers.ClientController;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
 public class GameWindow extends JFrame {
-    public static final Object key = new Object();
-
     private static final int FIELD_SIZE = 10;
     private static final int ROW_STEP = 10;
     private static final int DELIMITER = 10;
@@ -41,7 +40,6 @@ public class GameWindow extends JFrame {
      * All adversaries
      */
     private ArrayList<JButton> adversaries;
-
     /**
      * Player's name
      */
@@ -54,14 +52,6 @@ public class GameWindow extends JFrame {
      * Имя игрока которому делается запрос на игру
      */
     private String requestAdversaryName;
-    /**
-     * Current turn
-     */
-    private JLabel turn;
-    /**
-     * Current shot result
-     */
-    private JLabel shotResult;
     /**
      * Game's controller
      */
@@ -105,8 +95,6 @@ public class GameWindow extends JFrame {
         makeShot = false;
         playerSels = new JButton[FIELD_SIZE][FIELD_SIZE];
         adversarySels = new JButton[FIELD_SIZE][FIELD_SIZE];
-        turn = new JLabel();
-        shotResult = new JLabel();
 
         playerName = new JLabel();
         adversaryName = new JLabel();
@@ -121,7 +109,6 @@ public class GameWindow extends JFrame {
         gameField.add(adversaryPlayingField, BorderLayout.WEST);
         add(gameField, BorderLayout.CENTER);
     }
-
 
     /**
      * Инициализация графического интерфейса пользователя
@@ -142,49 +129,6 @@ public class GameWindow extends JFrame {
         gameField.add(infoPanel, BorderLayout.CENTER);
         gameField.revalidate();
     }
-
-    /**
-     * Create WinPanel
-     * @param winner
-     * @return WinPanel
-     */
-    private JPanel getWinPanel(String winner) {
-        JButton gameButton = new JButton("ИГРАТЬ СНОВА");
-        gameButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gameField.remove(infoPanel);
-                gameField.add(getChooseAdversaryPanel(), BorderLayout.CENTER);
-                gameField.revalidate();
-            }
-        });
-
-        JButton exitButton = new JButton("ВЫЙТИ");
-        exitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.exit();
-                System.exit(0);
-            }
-        });
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(gameButton);
-        buttonPanel.add(exitButton);
-
-        JLabel label = new JLabel("Победил " + winner);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-
-        TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "ПОБЕДА!!!", TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION);
-
-        winPanel = new JPanel();
-        winPanel.setLayout(new BorderLayout());
-        winPanel.setBorder(border);
-        winPanel.add(label, BorderLayout.CENTER);
-        winPanel.add(buttonPanel, BorderLayout.SOUTH);
-        return winPanel;
-    }
-
 
     /**
      * Update Adversaries Panel
@@ -214,7 +158,6 @@ public class GameWindow extends JFrame {
         }
         adversariesPanel.revalidate();
     }
-
 
     /**
      * Create Choose Adversary Panel
@@ -259,10 +202,8 @@ public class GameWindow extends JFrame {
         chooseAdversaryPanel.setBorder(border);
         chooseAdversaryPanel.add(adversariesPanel, BorderLayout.CENTER);
         chooseAdversaryPanel.add(updateList, BorderLayout.SOUTH);
-
         return chooseAdversaryPanel;
     }
-
 
     /**
      * Create info panel
@@ -273,6 +214,9 @@ public class GameWindow extends JFrame {
         infoOut.setMargin(new Insets(5,10,0,10));
         infoOut.setLineWrap(true);
         infoOut.setEditable(false);
+
+        DefaultCaret caret = (DefaultCaret) infoOut.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         JScrollPane scrollPane = new JScrollPane(infoOut);
 
@@ -288,10 +232,8 @@ public class GameWindow extends JFrame {
         return infoPanel;
     }
 
-
     /**
      * Create a panel with player's playing field
-     *
      * @param gameSels Player's playing sels
      * @param fieldName метка с указанием имени игрока
      * @param playerName Player's name
@@ -335,7 +277,6 @@ public class GameWindow extends JFrame {
         return gameField;
     }
 
-
     /**
      * Set Player's name
      */
@@ -345,7 +286,6 @@ public class GameWindow extends JFrame {
         controller.sendPlayerName(name);
     }
 
-
     /**
      * Set Game's controller
      * @param controller game's controller
@@ -353,16 +293,6 @@ public class GameWindow extends JFrame {
     public void setController(ClientController controller) {
         this.controller = controller;
     }
-
-
-    /**
-     * Set flag allowing the player to make a shot
-     * @param value if true then to make a shot
-     */
-    public void setMakeShot(boolean value) {
-        this.makeShot = value;
-    }
-
 
     /**
      * Setter Adversaries
@@ -387,7 +317,6 @@ public class GameWindow extends JFrame {
             }
         }
     }
-
 
     /**
      * Request Adversary
@@ -415,7 +344,6 @@ public class GameWindow extends JFrame {
             adversaryName.setText(requestAdversaryName);
         }
     }
-
 
     /**
      * Setter response
@@ -493,7 +421,7 @@ public class GameWindow extends JFrame {
 
     /**
      * Выводит результат хода текущего игрока
-     * @param data имя текущего игрока и xoд игрока
+     * @param data содержит имя текущего игрока и xoд игрока
      */
     public void setCurrentResult(String data) {
         String[] resultData = data.split(";");
@@ -556,5 +484,68 @@ public class GameWindow extends JFrame {
             }
         }
         showMessage("ПОТОПИЛ");
+    }
+
+    /**
+     * Завершение игры
+     * @param winnerName имя победившего игрока
+     */
+    public void gameIsOver(String winnerName) {
+        gameField.remove(infoPanel);
+        winPanel = getWinPanel(winnerName);
+        gameField.add(winPanel, BorderLayout.CENTER);
+        gameField.revalidate();
+    }
+
+    /**
+     * Create WinPanel
+     * @param winnerName имя победившего игрока
+     * @return WinPanel
+     */
+    private JPanel getWinPanel(String winnerName) {
+        JButton gameButton = new JButton("ИГРАТЬ СНОВА");
+        gameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (int row = 0; row < FIELD_SIZE; row++) {
+                    for (int column = 0; column < FIELD_SIZE; column++) {
+                        playerSels[row][column].setBackground(DEFAULT_COLOR);
+                        adversarySels[row][column].setBackground(DEFAULT_COLOR);
+                    }
+                }
+                isGame = false;
+                controller.setIsNotBusy();
+
+                gameField.remove(winPanel);
+                chooseAdversaryPanel = getChooseAdversaryPanel();
+                gameField.add(chooseAdversaryPanel, BorderLayout.CENTER);
+                gameField.revalidate();
+            }
+        });
+
+        JButton exitButton = new JButton("ВЫЙТИ");
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.exit();
+                System.exit(0);
+            }
+        });
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(gameButton);
+        buttonPanel.add(exitButton);
+
+        JLabel label = new JLabel("Победил " + winnerName);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+
+        TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "ПОБЕДА!!!", TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION);
+
+        winPanel = new JPanel();
+        winPanel.setLayout(new BorderLayout());
+        winPanel.setBorder(border);
+        winPanel.add(label, BorderLayout.CENTER);
+        winPanel.add(buttonPanel, BorderLayout.SOUTH);
+        return winPanel;
     }
 }

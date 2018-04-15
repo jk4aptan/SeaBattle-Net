@@ -2,9 +2,7 @@ package java1.lesson1.sea_battle.server.controllers;
 
 import java1.lesson1.sea_battle.server.components.SeaBattleHandler;
 import java1.lesson1.sea_battle.server.models.*;
-import java1.lesson1.sea_battle.views.GameWindow;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -12,7 +10,6 @@ import java.util.ArrayList;
  */
 public class GameController {
     private Game game;
-    private GameWindow gameWindow;
     private Player player;
     private Player adversary;
     private Player currentPlayer;
@@ -41,17 +38,6 @@ public class GameController {
         adversaryNetHandler.setController(this);
     }
 
-
-    /**
-     * Сохраняет объект модели Game
-     * @param game объект модели Game
-     */
-    public void setGame(Game game) {
-        this.game = game;
-    }
-
-
-
     /**
      * Запрашивает у GUI координату выстрела
      * @param idPlayer id делающего выстрел игрока
@@ -68,7 +54,6 @@ public class GameController {
         }
     }
 
-
     /**
      * Передает игроку полученное от GUI значение координаты выстрела
      * @param shotCoordinate координата выстрела
@@ -81,17 +66,6 @@ public class GameController {
             Player.playerKey.notifyAll();
         }
     }
-
-
-    /**
-     * Передает GUI имя автоматического (computer) игрока
-     *
-     * @param name имя автоматического (computer) игрока
-     */
-    public void setCurrentTurn(String name) {
-        gameWindow.setCurrentTurn(name);
-    }
-
 
     /**
      * Передает GUI результат выстрела в случаях: ПОТОПИЛ
@@ -119,7 +93,6 @@ public class GameController {
         adversaryNetHandler.sendMessage(message.toString());
     }
 
-
     /**
      * Передает GUI результат выстрела в случаях: МИМО, РАНИЛ
      * @param currentPlayerName игрок сделавший ход
@@ -134,45 +107,13 @@ public class GameController {
         adversaryNetHandler.sendMessage(message.toString());
     }
 
-
     /**
-     * Передает GUI победившего игрока
-     *
-     * @param currentPlayer - победивший игрок
+     * Завершение игры
+     * @param winnerName - имя победившего игрока
      */
-    public void gameIsOver(Player currentPlayer) {
-        gameWindow.gameIsOver(currentPlayer);
-    }
-
-
-    /**
-     * Инициализирует модель игры
-     */
-    public void initGame() {
-        synchronized (Game.gameKey) {
-            Game.setIsNewGame(true);
-            Game.gameKey.notify();
-        }
-    }
-
-    /**
-     * Инициализирует GUI
-     */
-    public void initView() {
-        synchronized (GameWindow.gwKey) {
-            GameWindow.setIsInitBattleField(true);
-            GameWindow.gwKey.notify();
-        }
-    }
-
-    /**
-     * Стартует новую игру для пользователя
-     */
-    public void startNewGame() {
-        synchronized (Game.gameKey) {
-            Game.setIsGameStart(true);
-            Game.gameKey.notify();
-        }
+    public void gameIsOver(String winnerName) {
+        playerNetHandler.gameIsOver(winnerName);
+        adversaryNetHandler.gameIsOver(winnerName);
     }
 
     /**
@@ -206,12 +147,5 @@ public class GameController {
             }
         }
         return stringBuilder.toString();
-    }
-
-    public void exit(int id) {
-        //todo - по !id вычислить оставшегося игрока
-        // послать ему уведомление о том, что соперник покинул игру
-        // предоложить ему выбрать другого соперника
-        game.setExit(true);
     }
 }

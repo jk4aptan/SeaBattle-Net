@@ -6,7 +6,6 @@ import java.io.*;
 import java.net.Socket;
 
 public class ClientNetHandler implements Runnable {
-
     private boolean exit;
     private Socket socket;
     private ClientController controller;
@@ -54,7 +53,9 @@ public class ClientNetHandler implements Runnable {
                 else if (message.startsWith("setLastSunkShip")) {
                     controller.setLastSunkShip(message.substring(16));
                 }
-
+                else if (message.startsWith("gameIsOver")) {
+                    controller.gameIsOver(message.substring(11));
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -85,10 +86,6 @@ public class ClientNetHandler implements Runnable {
      */
     private void sendMessage(String message) {
         try {
-
-            //todo delete
-            System.err.println(message);
-
             out.writeUTF(message);
             out.flush();
         } catch (IOException e) {
@@ -143,5 +140,12 @@ public class ClientNetHandler implements Runnable {
      */
     public void setShotCoordinate(int shotCoordinate) {
         sendMessage("setShotCoordinate " + shotCoordinate);
+    }
+
+    /**
+     * Освобождает флаг занятости
+     */
+    public void setIsNotBusy() {
+        sendMessage("setIsNotBusy");
     }
 }

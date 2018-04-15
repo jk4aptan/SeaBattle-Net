@@ -14,6 +14,8 @@ public class SeaBattleHandler implements Runnable {
     private final Object key = new Object();
 
     private static Integer count = 0;
+    private Thread gameThread;
+
     private static int incrementCount() {
         synchronized (count) {
             return ++count;
@@ -53,16 +55,12 @@ public class SeaBattleHandler implements Runnable {
         new Thread(this).start();
     }
 
-
     @Override
     public void run() {
         handlers.add(this);
         try {
             while (!exit) {
                 String message = in.readUTF();
-
-                //todo delete
-                System.err.println(id + " netHandler: " + message);
 
                 if (message.startsWith("setPlayerName")) {
                     setPlayerName(message.substring(14));
@@ -84,10 +82,11 @@ public class SeaBattleHandler implements Runnable {
                     controller.setShotCoordinate(message.substring(18));
                 }
                 else if (message.startsWith("exit")) {
-                    controller.exit(id);
                     exit = true;
                 }
-
+                else if (message.startsWith("setIsNotBusy")) {
+                    isBusy = false;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -114,7 +113,6 @@ public class SeaBattleHandler implements Runnable {
      */
     private void requestAdversary(String id) {
         isBusy = true;
-
         adversary = null;
         for (SeaBattleHandler handler : handlers) {
             if (handler.getId() == Integer.parseInt(id)) {
@@ -122,7 +120,6 @@ public class SeaBattleHandler implements Runnable {
                 break;
             }
         }
-
         if (adversary == null) {
             //игрок вышел из игры
             response = LEFT_THE_GAME;
@@ -153,7 +150,8 @@ public class SeaBattleHandler implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            new Thread(game).start();
+            gameThread = new Thread(game);
+            gameThread.start();
         }
     }
 
@@ -191,7 +189,6 @@ public class SeaBattleHandler implements Runnable {
         return response;
     }
 
-
     /**
      * Send the adversaries to the client
      */
@@ -208,10 +205,9 @@ public class SeaBattleHandler implements Runnable {
         }
     }
 
-
     /**
      * Send Message to the client
-     * @param message
+     * @param message пересылаемое сообщение
      */
     public void sendMessage(String message) {
         try {
@@ -255,18 +251,20 @@ public class SeaBattleHandler implements Runnable {
     }
 
     /**
-     * Getter Adversary
-     * @return adversary игрок принявший предложение об игре
-     */
-    public SeaBattleHandler getAdversary() {
-        return adversary;
-    }
-
-    /**
      * Setter controller
      * @param controller контроллер игры
      */
     public void setController(GameController controller) {
         this.controller = controller;
+    }
+
+    /**
+     * Завершение игры
+     * @param winnerName имя победившего игрока
+     */
+    public void gameIsOver(String winnerName) {
+        sendMessage("gameIsOver " + winnerName);
+        adversary = null;
+        controller = null;
     }
 }

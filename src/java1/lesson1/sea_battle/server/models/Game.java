@@ -6,7 +6,6 @@ import java1.lesson1.sea_battle.server.components.Factories.SquadronFactory;
 import java1.lesson1.sea_battle.server.components.SeaBattleHandler;
 import java1.lesson1.sea_battle.server.controllers.GameController;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,16 +14,6 @@ import java.util.Map;
  * Класс реализующий модель игры
  */
 public class Game implements Runnable {
-    public static final Object gameKey = new Object();
-    /**
-     * Флаг инициализации новой игры
-     */
-    private static boolean isNewGame = false;
-    /**
-     * Флаг старта новой игры
-     */
-    private static boolean isGameStart = false;
-
     /**
      * Эскадры игроков
      */
@@ -59,7 +48,6 @@ public class Game implements Runnable {
         gameController = new GameController(this, player, adversary, playerNetHandler, adversaryNetHandler);
     }
 
-
     /**
      * Инициализация игры
      */
@@ -73,8 +61,6 @@ public class Game implements Runnable {
         gameController.initPlayerBattleField(playerSquadron);
         gameController.initAdversaryBattleField(adversarySquadron);
     }
-
-
 
     @Override
     public void run() {
@@ -113,58 +99,11 @@ public class Game implements Runnable {
             }
 
             // Проверить на окончание игры
-//            if (squadrons.get(currentAdversary).isLosing()) {
-//                isNewGame = false;
-//                gameController.gameIsOver(currentPlayer);
-//
-//                // ждать решения, будет новая игра или нет
-//                try {
-//                    synchronized (gameKey) {
-//                        while (!isNewGame) {
-//                            gameKey.wait();
-//                        }
-//                    }
-//
-//                    // инициализировать игру
-//                    init();
-//                    gameController.initView();
-//
-//                    synchronized (gameKey) {
-//                        while (!isGameStart) {
-//                            gameKey.wait();
-//                        }
-//                    }
-//
-//                    // запустить новую игру
-//                    start();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-
+            if (squadrons.get(currentAdversary).isLosing()) {
+                gameController.gameIsOver(currentPlayer.getName());
+                exit = true;
+            }
         }
-    }
-
-
-
-
-    /**
-     * Устанавливает флаг новой игры
-     *
-     * @param value true - новая игра
-     */
-    public static void setIsNewGame(boolean value) {
-        Game.isNewGame = value;
-    }
-
-
-    /**
-     * Устанавливает флаг старта новой игры
-     * @param value true - старт новой игры
-     */
-    public static void setIsGameStart(boolean value) {
-        Game.isGameStart = value;
     }
 
     /**

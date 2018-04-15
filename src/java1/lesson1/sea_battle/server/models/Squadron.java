@@ -19,30 +19,24 @@ public class Squadron {
     private Ship lastSunkShip;
 
 
-
     public Squadron() {
         ships = new ArrayList<>();
     }
 
-
     /**
      * Присоединяет корабль к эскадре
-     *
      * @param ship присоединяемый корабль
      */
     public void addShip(Ship ship) {
         ships.add(ship);
     }
 
-
     public ArrayList<Ship> getShips() {
         return ships;
     }
 
-
     /**
      * Получить результат по выстрелу
-     *
      * @param shot выстрел противника
      * @return результат выстрела противника по кораблям эскадры
      */
@@ -61,7 +55,6 @@ public class Squadron {
         return shotResult;
     }
 
-
     /**
      * Проверяет, все ли корабли потопили в эскадре
      *
@@ -77,7 +70,6 @@ public class Squadron {
 
         return sunkenShipsCount == ships.size();
     }
-
 
     /**
      * @return пооследний, на текущий момент, потопленный корабль в эскадре

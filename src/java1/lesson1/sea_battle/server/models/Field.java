@@ -15,10 +15,6 @@ public class Field {
         fieldArea = new char[Config.BATTLE_FIELD_COLUMNS_COUNT][Config.BATTLE_FIELD_ROWS_COUNT];
     }
 
-    public char getCell(int column, int row) {
-        return fieldArea[column][row];
-    }
-
     public void setCell(int column, int row, char symbol) {
         fieldArea[column][row] = symbol;
     }

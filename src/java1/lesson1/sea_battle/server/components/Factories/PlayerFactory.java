@@ -26,10 +26,9 @@ public class PlayerFactory {
 
     /**
      * Создает игрока с заданым именем
-     *
      * @return игрок с заданым именем
      * @param name имя игрока
-     * @param id
+     * @param id идентификатор игрока
      */
     public synchronized Player createPlayer(String name, int id) {
         return new Player(name, id);
@@ -52,7 +51,6 @@ public class PlayerFactory {
                 player = new Computer(Config.DEFAULT_PLAYER_NAME, new ImproveAutoMakeShotStrategy());
                 break;
         }
-
         return player;
     }
 }

@@ -20,7 +20,6 @@ public class Player implements IMakeShot {
      * Используемая стратегия выстрелов
      */
     protected IMakeShotStrategy makeShotStrategy;
-
     /**
      * Контроллер игры
      */

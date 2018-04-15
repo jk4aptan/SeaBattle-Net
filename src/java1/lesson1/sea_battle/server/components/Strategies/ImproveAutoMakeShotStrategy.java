@@ -27,7 +27,6 @@ public class ImproveAutoMakeShotStrategy implements IMakeShotStrategy{
     private boolean isRepeatWoundedState;
 
 
-
     public ImproveAutoMakeShotStrategy() {
         isFirstWoundedState = false;
         isRepeatWoundedState = false;
@@ -46,10 +45,8 @@ public class ImproveAutoMakeShotStrategy implements IMakeShotStrategy{
         makeImproveShots(Config.ONE_DECK_SHIP);
     }
 
-
     /**
      * Реализует улучшенный алгоритм стрельбы по кораблям противника.
-     *
      * @return координату выстрела
      */
     @Override
@@ -107,10 +104,8 @@ public class ImproveAutoMakeShotStrategy implements IMakeShotStrategy{
         return new Coordinate(shot);
     }
 
-
     /**
      * Задает базовую последовательность координат выстрелов по кораблям
-     *
      * @param shipDecks колличество палуб корабля
      */
     private void makeImproveShots(int shipDecks) {
@@ -137,10 +132,8 @@ public class ImproveAutoMakeShotStrategy implements IMakeShotStrategy{
         }
     }
 
-
     /**
      * Вычисляет последовательность координат выстрелов после первого ранения корабля
-     *
      * @param luckyShot поразивший корабль выстрел
      */
     private void makeAfterFirstWoundedShots(int luckyShot) {
@@ -208,10 +201,8 @@ public class ImproveAutoMakeShotStrategy implements IMakeShotStrategy{
         }
     }
 
-
     /**
      * Вычисляет последовательность координат выстрелов после повторного ранения корабля
-     *
      * @param luckyShots поразивший корабль выстрел
      */
     private void makeAfterRepeatWoundedShots(LinkedList<Integer> luckyShots) {
@@ -241,11 +232,9 @@ public class ImproveAutoMakeShotStrategy implements IMakeShotStrategy{
         }
     }
 
-
     /**
      * После того как корабль потоплен, данный метод сохраняет ячейки поля, которые располагаются вокруг корабля.
      * Эти ячейки не будут использоваться для стрельбы.
-     *
      * @param luckyShots поразивший корабль выстрел
      */
     private void addMadeShots(LinkedList<Integer> luckyShots) {

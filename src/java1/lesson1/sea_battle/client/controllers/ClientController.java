@@ -4,16 +4,13 @@ import java1.lesson1.sea_battle.client.components.ClientNetHandler;
 import java1.lesson1.sea_battle.client.views.GameWindow;
 
 public class ClientController {
-
     private GameWindow gameWindow;
     private ClientNetHandler netHandler;
 
     public ClientController(GameWindow gameWindow, ClientNetHandler netHandler) {
-
         this.gameWindow = gameWindow;
         this.netHandler = netHandler;
     }
-
 
     /**
      * Close outputstream and socket on exit
@@ -21,7 +18,6 @@ public class ClientController {
     public void exit() {
         netHandler.setExit(true);
     }
-
 
     /**
      * Get the adversaries
@@ -68,7 +64,7 @@ public class ClientController {
 
     /**
      * Return Response
-     * @param response
+     * @param response ответ
      */
     public void returnResponse(int response) {
         netHandler.returnResponse(response);
@@ -133,5 +129,20 @@ public class ClientController {
      */
     public void setLastSunkShip(String data) {
         gameWindow.setLastSunkShip(data);
+    }
+
+    /**
+     * Завершение игры
+     * @param winnerName имя победившего игрока
+     */
+    public void gameIsOver(String winnerName) {
+        gameWindow.gameIsOver(winnerName);
+    }
+
+    /**
+     * Освобождает флаг занятости
+     */
+    public void setIsNotBusy() {
+        netHandler.setIsNotBusy();
     }
 }

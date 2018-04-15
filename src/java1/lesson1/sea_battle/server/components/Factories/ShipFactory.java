@@ -19,13 +19,11 @@ class ShipFactory {
     }
 
 
-
     private ShipFactory() {
     }
 
     /**
      * Создание корабля в автоматическом режиме
-     *
      * @param shipDecks колличество палуб корабля
      * @return Ship n-палубный корабль
      */
@@ -55,13 +53,11 @@ class ShipFactory {
             state[i] = ShipState.UNHARMED;
         }
         ship.setDecksState(state);
-
         return ship;
     }
 
     /**
      * Проверка валидности координат корабля
-     *
      * @param coordinates координаты корабля
      * @param orientation ориентация корабля
      * @return true - если координаты корабля находятся в пределах игрового поля, false - если выходят за границу игрового поля

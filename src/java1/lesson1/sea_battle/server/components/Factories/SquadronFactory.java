@@ -26,7 +26,6 @@ public class SquadronFactory {
     private ArrayList<Integer> busySells;
 
 
-
     private SquadronFactory() {
         busySells = new ArrayList<>();
     }
@@ -65,7 +64,6 @@ public class SquadronFactory {
 
     /**
      * Проверка валидности размещения корабля в эскадре
-     *
      * @param ship проверяемый корабль
      * @return true - если координаты корабля не попадают на занятые ячейки поля, false - в противном случае
      */
@@ -78,7 +76,6 @@ public class SquadronFactory {
         return true;
     }
 
-
     /**
      * Сохранить ячейки занятые кораблем и ячейки вокруг корабля.
      * Ячейки занятые кораблем и вокруг него немогут быть заняты другим кораблем.
@@ -88,7 +85,6 @@ public class SquadronFactory {
     private void addBusySells(Coordinate[] shipCoordinates) {
         busySells.addAll(getBusySells(shipCoordinates));
     }
-
 
     /**
      * Вычисляет ячейки занятые кораблем и ячейки вокруг корабля.

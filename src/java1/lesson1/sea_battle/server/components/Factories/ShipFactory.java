@@ -45,6 +45,7 @@ class ShipFactory {
 
         Ship ship = new Ship();
         ship.setDecks(shipDecks);
+        ship.setOrientation(orientation);
         ship.setCoordinates(coordinates);
         ship.setState(ShipState.UNHARMED);
 

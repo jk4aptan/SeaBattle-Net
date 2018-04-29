@@ -84,10 +84,10 @@ public class ClientController {
 
     /**
      * Размещает корабли на игровом поле
-     * @param coordinates координаты кораблей
+     * @param shipsCoordinates координаты кораблей
      */
-    public void initShipCoordinates(String coordinates) {
-        gameWindow.initShipCoordinates(coordinates);
+    public void initShipsCoordinates(String shipsCoordinates) {
+        gameWindow.initShipCoordinates(shipsCoordinates);
         gameWindow.setInfoPanel();
     }
 

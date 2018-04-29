@@ -1,5 +1,6 @@
 package java1.lesson1.sea_battle.server.controllers;
 
+import java1.lesson1.sea_battle.server.components.Enums.ShipOrientation;
 import java1.lesson1.sea_battle.server.components.SeaBattleHandler;
 import java1.lesson1.sea_battle.server.models.*;
 
@@ -45,12 +46,12 @@ public class GameController {
     public void makeShot(int idPlayer) {
         if (idPlayer == player.getId()) {
             currentPlayer = player;
-            playerNetHandler.sendMessage("turnOn " + player.getName());
-            adversaryNetHandler.sendMessage("turnOff " + player.getName());
+            playerNetHandler.sendMessage("turnOn", player.getName());
+            adversaryNetHandler.sendMessage("turnOff", player.getName());
         } else {
             currentPlayer = adversary;
-            adversaryNetHandler.sendMessage("turnOn " + adversary.getName());
-            playerNetHandler.sendMessage("turnOff " + adversary.getName());
+            adversaryNetHandler.sendMessage("turnOn", adversary.getName());
+            playerNetHandler.sendMessage("turnOff", adversary.getName());
         }
     }
 
@@ -87,10 +88,10 @@ public class GameController {
         busySellsCoordinates.deleteCharAt(busySellsCoordinates.length() - 1);
 
         StringBuilder message = new StringBuilder();
-        message.append("setLastSunkShip ").append(currentPlayerName).append(";").append(sunkShipCoordinates.toString()).append(";").append(busySellsCoordinates.toString());
+        message.append(currentPlayerName).append(";").append(sunkShipCoordinates.toString()).append(";").append(busySellsCoordinates.toString());
 
-        playerNetHandler.sendMessage(message.toString());
-        adversaryNetHandler.sendMessage(message.toString());
+        playerNetHandler.sendMessage("setLastSunkShip", message.toString());
+        adversaryNetHandler.sendMessage("setLastSunkShip", message.toString());
     }
 
     /**
@@ -101,10 +102,10 @@ public class GameController {
      */
     public void setCurrentResult(String currentPlayerName, Shot shot, String result) {
         StringBuilder message = new StringBuilder();
-        message.append("setCurrentResult ").append(currentPlayerName).append(";").append(shot.getCoordinate().getValue()).append(";").append(result);
+        message.append(currentPlayerName).append(";").append(shot.getCoordinate().getValue()).append(";").append(result);
 
-        playerNetHandler.sendMessage(message.toString());
-        adversaryNetHandler.sendMessage(message.toString());
+        playerNetHandler.sendMessage("setCurrentResult", message.toString());
+        adversaryNetHandler.sendMessage("setCurrentResult", message.toString());
     }
 
     /**
@@ -121,8 +122,7 @@ public class GameController {
      * @param playerSquadron эскадра игрока
      */
     public void initPlayerBattleField(Squadron playerSquadron) {
-        String message = "initShipsCoordinates " + shipsCoordinates(playerSquadron);
-        playerNetHandler.sendMessage(message);
+        playerNetHandler.sendMessage("initShipsCoordinates", shipsCoordinates(playerSquadron));
     }
 
     /**
@@ -130,8 +130,7 @@ public class GameController {
      * @param adversarySquadron эскадра противника
      */
     public void initAdversaryBattleField(Squadron adversarySquadron) {
-        String message = "initShipsCoordinates " + shipsCoordinates(adversarySquadron);
-        adversaryNetHandler.sendMessage(message);
+        adversaryNetHandler.sendMessage("initShipsCoordinates", shipsCoordinates(adversarySquadron));
     }
 
     /**
@@ -140,12 +139,19 @@ public class GameController {
      * @return строка координат кораблей эскадры
      */
     private String shipsCoordinates(Squadron squadron) {
+        final int VERTICAL = 1;
+        final int HORIZONTAL = 0;
+
         StringBuilder stringBuilder = new StringBuilder();
         for (Ship ship : squadron.getShips()) {
+            int orientation = ship.getOrientation().equals(ShipOrientation.VERTICAL) ? VERTICAL : HORIZONTAL;
+            stringBuilder.append(ship.getDecks()).append(",").append(orientation).append(",");
             for (Coordinate coordinate : ship.getCoordinates()) {
-                stringBuilder.append(coordinate.getValue()).append(";");
+                stringBuilder.append(coordinate.getValue()).append(",");
             }
+            stringBuilder.append(";");
         }
         return stringBuilder.toString();
     }
 }
+//4,011,12,13,14,;3,157,67,77,;3,051,52,53,;2,083,84,;2,026,27,;2,097,98,;1,132,;1,181,;1,06,;1,079,;

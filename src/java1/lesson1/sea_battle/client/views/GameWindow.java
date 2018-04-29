@@ -11,17 +11,16 @@ import java.util.ArrayList;
 
 public class GameWindow extends JFrame {
     private static final int FIELD_SIZE = 10;
+    private static final int ICON_SIZE = 35;
     private static final int ROW_STEP = 10;
     private static final int DELIMITER = 10;
     private static final String WINDOW_TITLE = "Sea Battle";
     private static final String PLAYER_FIELD = "ВАШЕ ПОЛЕ";
     private static final String ADVERSARY_FIELD = "ПОЛЕ ПРОТИВНИКА";
-    private static final Color DEFAULT_COLOR = Color.lightGray;
-    private static final Color SEA_COLOR = Color.BLUE;
-    private static final Color SHIP_COLOR = Color.BLACK;
-    private static final Color UNHARMED_COLOR = Color.WHITE;
-    private static final Color WOUNDED_COLOR = Color.ORANGE;
-    private static final Color SUNK_COLOR = Color.RED;
+
+    private final ImageIcon SEA = new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/sea.png"));
+    private final ImageIcon SHOT = new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/shot.png"));
+    private final ImageIcon SUNK = new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/sunk.png"));
 
 
     /**
@@ -77,7 +76,7 @@ public class GameWindow extends JFrame {
 
     public GameWindow() {
         super(WINDOW_TITLE);
-        setSize(1050, 380);
+        setSize(1050, 400);
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -245,12 +244,13 @@ public class GameWindow extends JFrame {
         fieldPlayerName.add(gameFieldName);
         fieldPlayerName.add(playerName);
 
-        JPanel gameSeaArea = new JPanel();
-        gameSeaArea.setLayout(new GridLayout(FIELD_SIZE, FIELD_SIZE, 1, 1));
+        JPanel seaArea = new JPanel();
+        seaArea.setLayout(new GridLayout(FIELD_SIZE, FIELD_SIZE, 1, 1));
         for (int row = 0; row < FIELD_SIZE; row++) {
             for (int column = 0; column < FIELD_SIZE; column++) {
                 JButton jButton = new JButton();
-                jButton.setBackground(DEFAULT_COLOR);
+                jButton.setBorder(null);
+                jButton.setIcon(SEA);
                 if (fieldName.equals(ADVERSARY_FIELD)) {
                     int finalColumn = column;
                     int finalRow = row;
@@ -265,13 +265,20 @@ public class GameWindow extends JFrame {
                     });
                 }
                 gameSels[row][column] = jButton;
-                gameSeaArea.add(jButton);
+                seaArea.add(jButton);
             }
         }
 
+        GridBagLayout gridBagLayout = new GridBagLayout();
+        gridBagLayout.rowHeights = new int[]{FIELD_SIZE * ICON_SIZE};
+        gridBagLayout.columnWidths = new int[]{FIELD_SIZE * ICON_SIZE};
+
+        JPanel gameSeaArea = new JPanel(gridBagLayout);
+        gameSeaArea.add(seaArea);
+
         JPanel gameField = new JPanel();
         gameField.setLayout(new BorderLayout());
-        gameField.add(gameSeaArea);
+        gameField.add(gameSeaArea, BorderLayout.CENTER);
         gameField.add(fieldPlayerName, BorderLayout.SOUTH);
 
         return gameField;
@@ -378,19 +385,84 @@ public class GameWindow extends JFrame {
 
     /**
      * Размещает корабли на игровом поле
-     * @param coordinates координаты кораблей
+     * @param shipsCoordinates координаты кораблей
      */
-    public void initShipCoordinates(String coordinates) {
+    public void initShipCoordinates(String shipsCoordinates) {
+        ImageIcon[] ship4v = {
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship4v1.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship4v2.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship4v3.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship4v4.png"))
+        };
+        ImageIcon[] ship4h = {
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship4h1.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship4h2.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship4h3.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship4h4.png"))
+        };
+        ImageIcon[] ship3v = {
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship3v1.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship3v2.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship3v3.png")),
+        };
+        ImageIcon[] ship3h = {
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship3h1.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship3h2.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship3h3.png")),
+        };
+        ImageIcon[] ship2v = {
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship2v1.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship2v2.png")),
+        };
+        ImageIcon[] ship2h = {
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship2h1.png")),
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship2h2.png")),
+        };
+        ImageIcon[] ship1 = {
+                new ImageIcon(getClass().getClassLoader().getResource("java1/lesson1/sea_battle/client/images/ship1.png")),
+        };
+
+        final int DECKS = 0;
+        final int DECKS_4_SHIP = 4;
+        final int DECKS_3_SHIP = 3;
+        final int DECKS_2_SHIP = 2;
+        final int DECKS_1_SHIP = 1;
+        final int ORIENTATION = 1;
+        final int VERTICAL = 1;
+        final int OFFSET = 2;
+
         for (int row = 0; row < FIELD_SIZE; row++) {
             for (int column = 0; column < FIELD_SIZE; column++) {
-                playerSels[row][column].setBackground(SEA_COLOR);
-                adversarySels[row][column].setBackground(SEA_COLOR);
+                playerSels[row][column].setIcon(SEA);
+                adversarySels[row][column].setIcon(SEA);
             }
         }
-        for (String coordinate : coordinates.split(";")) {
-            Integer row = Integer.parseInt(coordinate) / DELIMITER;
-            Integer column = Integer.parseInt(coordinate) % DELIMITER;
-            playerSels[row][column].setBackground(SHIP_COLOR);
+
+        for (String shipDate : shipsCoordinates.split(";")) {
+            String[] ship = shipDate.split(",");
+
+            ImageIcon[] shipIcon = null;
+            switch (Integer.parseInt(ship[DECKS])) {
+                case DECKS_4_SHIP:
+                    shipIcon = Integer.parseInt(ship[ORIENTATION]) == VERTICAL ? ship4v : ship4h;
+                    break;
+                case DECKS_3_SHIP:
+                    shipIcon = Integer.parseInt(ship[ORIENTATION]) == VERTICAL ? ship3v : ship3h;
+                    break;
+                case DECKS_2_SHIP:
+                    shipIcon = Integer.parseInt(ship[ORIENTATION]) == VERTICAL ? ship2v : ship2h;
+                    break;
+                case DECKS_1_SHIP:
+                    shipIcon = ship1;
+                    break;
+            }
+
+            for (int i = OFFSET; i < (Integer.parseInt(ship[DECKS]) + OFFSET); i++) {
+                Integer row = Integer.parseInt(ship[i]) / DELIMITER;
+                Integer column = Integer.parseInt(ship[i]) % DELIMITER;
+
+                playerSels[row][column].setIcon(shipIcon[i - OFFSET]);
+            }
         }
     }
 
@@ -431,23 +503,23 @@ public class GameWindow extends JFrame {
         int row = coordinate / DELIMITER;
         int column = coordinate % DELIMITER;
 
-        Color color = null;
+        ImageIcon icon = null;
         String message = null;
         String result = resultData[2];
         switch (result) {
             case "UNHARMED":
-                color = UNHARMED_COLOR;
+                icon = SHOT;
                 message = "МИМО";
                 break;
             case "WOUNDED":
-                color = WOUNDED_COLOR;
+                icon = SUNK;
                 message = "РАНИЛ";
         }
 
         if (currentPlayerName.equals(playerName.getText())) {
-            adversarySels[row][column].setBackground(color);
+            adversarySels[row][column].setIcon(icon);
         } else {
-            playerSels[row][column].setBackground(color);
+            playerSels[row][column].setIcon(icon);
         }
         showMessage(message);
     }
@@ -466,9 +538,9 @@ public class GameWindow extends JFrame {
             int column = coordinate % DELIMITER;
 
             if (currentPlayerName.equals(playerName.getText())) {
-                adversarySels[row][column].setBackground(UNHARMED_COLOR);
+                adversarySels[row][column].setIcon(SHOT);
             } else {
-                playerSels[row][column].setBackground(UNHARMED_COLOR);
+                playerSels[row][column].setIcon(SHOT);
             }
         }
 
@@ -478,9 +550,9 @@ public class GameWindow extends JFrame {
             int column = coordinate % DELIMITER;
 
             if (currentPlayerName.equals(playerName.getText())) {
-                adversarySels[row][column].setBackground(SUNK_COLOR);
+                adversarySels[row][column].setIcon(SUNK);
             } else {
-                playerSels[row][column].setBackground(SUNK_COLOR);
+                playerSels[row][column].setIcon(SUNK);
             }
         }
         showMessage("ПОТОПИЛ");
@@ -509,8 +581,8 @@ public class GameWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 for (int row = 0; row < FIELD_SIZE; row++) {
                     for (int column = 0; column < FIELD_SIZE; column++) {
-                        playerSels[row][column].setBackground(DEFAULT_COLOR);
-                        adversarySels[row][column].setBackground(DEFAULT_COLOR);
+                        playerSels[row][column].setIcon(SEA);
+                        adversarySels[row][column].setIcon(SEA);
                     }
                 }
                 isGame = false;

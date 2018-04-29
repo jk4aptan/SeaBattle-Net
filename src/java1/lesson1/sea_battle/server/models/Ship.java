@@ -1,5 +1,6 @@
 package java1.lesson1.sea_battle.server.models;
 
+import java1.lesson1.sea_battle.server.components.Enums.ShipOrientation;
 import java1.lesson1.sea_battle.server.components.Enums.ShipState;
 
 /**
@@ -14,6 +15,10 @@ public class Ship {
      * Колличество палуб корабля
      */
     private int decks;
+    /**
+     * Ориентация корабля
+     */
+    private ShipOrientation orientation;
     /**
      * Состояние палуб корабля
      */
@@ -65,6 +70,10 @@ public class Ship {
         this.decks = decks;
     }
 
+    public int getDecks() {
+        return decks;
+    }
+
     public void setDecksState(ShipState[] state) {
         decksState = state;
     }
@@ -75,5 +84,13 @@ public class Ship {
 
     ShipState getState() {
         return state;
+    }
+
+    public ShipOrientation getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(ShipOrientation orientation) {
+        this.orientation = orientation;
     }
 }

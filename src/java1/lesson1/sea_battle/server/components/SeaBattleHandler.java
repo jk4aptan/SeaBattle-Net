@@ -2,6 +2,8 @@ package java1.lesson1.sea_battle.server.components;
 
 import java1.lesson1.sea_battle.server.controllers.GameController;
 import java1.lesson1.sea_battle.server.models.Game;
+import java1.lesson1.sea_battle.server.models.Message;
+import java1.lesson1.sea_battle.server.models.Messageable;
 
 import java.io.*;
 import java.net.Socket;
@@ -37,8 +39,8 @@ public class SeaBattleHandler implements Runnable {
     private SeaBattleHandler adversary;
     private GameController controller;
     private final Socket socket;
-    private DataInputStream in;
-    private DataOutputStream out;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
 
     public SeaBattleHandler(Socket socket) {
         id = incrementCount();
@@ -46,8 +48,10 @@ public class SeaBattleHandler implements Runnable {
         isBusy = false;
         this.socket = socket;
         try {
-            this.in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            this.out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+            this.out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+            out.flush();
+            this.in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -60,35 +64,37 @@ public class SeaBattleHandler implements Runnable {
         handlers.add(this);
         try {
             while (!exit) {
-                String message = in.readUTF();
+                Messageable message = (Messageable) in.readObject();
 
-                if (message.startsWith("setPlayerName")) {
-                    setPlayerName(message.substring(14));
-                }
-                else if (message.startsWith("getAdversaries")) {
-                    returnAdversaries();
-                }
-                else if (message.startsWith("requestAdversary")) {
-                    requestAdversary(message.substring(17));
-                }
-                else if (message.startsWith("returnResponse")) {
-                    response = message.substring(15);
-                    isSet = true;
-                    synchronized (key) {
-                        key.notifyAll();
-                    }
-                }
-                else if (message.startsWith("setShotCoordinate")) {
-                    controller.setShotCoordinate(message.substring(18));
-                }
-                else if (message.startsWith("exit")) {
-                    exit = true;
-                }
-                else if (message.startsWith("setIsNotBusy")) {
-                    isBusy = false;
+                switch (message.getType()) {
+                    case "setPlayerName":
+                        setPlayerName(message.getContent());
+                        break;
+                    case "getAdversaries":
+                        returnAdversaries();
+                        break;
+                    case "requestAdversary":
+                        requestAdversary(message.getContent());
+                        break;
+                    case "returnResponse":
+                        response = message.getContent();
+                        isSet = true;
+                        synchronized (key) {
+                            key.notifyAll();
+                        }
+                        break;
+                    case "setShotCoordinate":
+                        controller.setShotCoordinate(message.getContent());
+                        break;
+                    case "exit":
+                        exit = true;
+                        break;
+                    case "setIsNotBusy":
+                        isBusy = false;
+                        break;
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
             handlers.remove(this);
@@ -98,13 +104,16 @@ public class SeaBattleHandler implements Runnable {
                 e.printStackTrace();
             }
             try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
-
     }
 
     /**
@@ -137,12 +146,12 @@ public class SeaBattleHandler implements Runnable {
         if (response.equals(REFUSE) || response.equals(CANCEL) || response.equals(BUSY) || response.equals(LEFT_THE_GAME)) {
             isBusy = false;
             adversary = null;
-            sendMessage("adversaryResponse " + REFUSE);
+            sendMessage("adversaryResponse", REFUSE);
         }
 
         // Start game
         if (response.equals(AGREE)) {
-            sendMessage("adversaryResponse " + AGREE);
+            sendMessage("adversaryResponse", AGREE);
             adversary.setAdversary(this);
             Game game = new Game(this, adversary);
             try {
@@ -173,7 +182,7 @@ public class SeaBattleHandler implements Runnable {
         }
         isBusy = true;
         isSet = false;
-        sendMessage("letsPlay " + player.getPlayerName());
+        sendMessage("letsPlay", player.getPlayerName());
         synchronized (key) {
             while (!isSet) {
                 try {
@@ -194,24 +203,25 @@ public class SeaBattleHandler implements Runnable {
      */
     private void returnAdversaries() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("adversaries ");
         synchronized (handlers) {
             for (SeaBattleHandler handler : handlers) {
                 if (!handler.getIsBusy() && handler.getId() != this.id) {
                     stringBuilder.append(handler.getPlayerName()).append(":").append(handler.getId()).append(";");
                 }
             }
-            sendMessage(stringBuilder.toString());
+            sendMessage("adversaries", stringBuilder.toString());
         }
     }
 
     /**
-     * Send Message to the client
-     * @param message пересылаемое сообщение
+     * Send Message to the server
+     * @param type message's type
+     * @param content message's content
      */
-    public void sendMessage(String message) {
+    public void sendMessage(String type, String content) {
         try {
-            out.writeUTF(message);
+            Messageable message = new Message(type, content);
+            out.writeObject(message);
             out.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -263,7 +273,7 @@ public class SeaBattleHandler implements Runnable {
      * @param winnerName имя победившего игрока
      */
     public void gameIsOver(String winnerName) {
-        sendMessage("gameIsOver " + winnerName);
+        sendMessage("gameIsOver", winnerName);
         adversary = null;
         controller = null;
     }
